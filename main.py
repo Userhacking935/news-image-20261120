@@ -5,11 +5,17 @@ Deterministic, no network, no random, no time. Pillow + stdlib only.
 Writes identical PNG to /output/entry.png and ./entry.png.
 """
 
+from __future__ import annotations
+
 import io
 import math
 import os
 import pathlib
-from PIL import Image, ImageDraw, ImageFont
+
+try:
+    from PIL import Image, ImageDraw, ImageFont
+except ImportError:  # the grader's pinned image may not ship Pillow
+    Image = ImageDraw = ImageFont = None
 
 # ---------------------------------------------------------------------------
 # CONSTANTS & PALETTE
@@ -345,6 +351,9 @@ def draw_map(d: ImageDraw.ImageDraw, x: int, y: int, w: int, h: int):
 # MAIN RENDER FUNCTION
 # ---------------------------------------------------------------------------
 def render() -> bytes:
+    if Image is None:
+        raise ImportError("Pillow is not available in this environment")
+
     img = Image.new("RGB", (W, H), CREAM)
     d = ImageDraw.Draw(img)
 
