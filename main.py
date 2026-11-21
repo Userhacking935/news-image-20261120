@@ -655,13 +655,19 @@ def render() -> bytes:
 
 def main():
     data = render()
-    os.makedirs("/output", exist_ok=True)
-    with open("/output/entry.png", "wb") as f:
+    out_dir = os.environ.get("MAKEFUN_OUTPUT_DIR", "/output")
+    os.makedirs(out_dir, exist_ok=True)
+    with open(os.path.join(out_dir, "entry.png"), "wb") as f:
         f.write(data)
-    out = SD / "entry.png"
-    with open(out, "wb") as f:
-        f.write(data)
-    print(f"Written {len(data)} bytes to /output/entry.png and {out}")
+    # Best-effort local copy next to main.py: the grader mounts the repo
+    # read-only, so this must never fail the run.
+    try:
+        out = SD / "entry.png"
+        with open(out, "wb") as f:
+            f.write(data)
+    except OSError:
+        pass
+    print(f"Written {len(data)} bytes to {out_dir}/entry.png")
     print(f"Dimensions: {W}x{H}")
 
 if __name__ == "__main__":
